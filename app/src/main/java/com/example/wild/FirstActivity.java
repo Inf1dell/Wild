@@ -1,13 +1,16 @@
 package com.example.wild;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -23,10 +26,15 @@ import java.util.ArrayList;
 
 public class FirstActivity extends AppCompatActivity {
 
+    public static final String APP_KEY = "favorite";
+
     private ArrayList<String> list = new ArrayList<String>();
     private ArrayList<String> listHref = new ArrayList<String>();
+    private ArrayList<String> listPrice = new ArrayList<String>();
     private ListView listView;
     ProgressDialog pd;
+    SharedPreferences mSettings;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +42,15 @@ public class FirstActivity extends AppCompatActivity {
         setContentView(R.layout.activity_first);
 
         listView = findViewById(R.id.listView);
+        mSettings = getSharedPreferences(APP_KEY, Context.MODE_PRIVATE);
         pd = new ProgressDialog(FirstActivity.this);
         pd.setMessage("Please wait");
         pd.setCancelable(false);
         pd.show();
+
+
         getHtmlFromWeb();
+
     }
     private void getHtmlFromWeb() {
         new Thread(new Runnable() {
@@ -47,29 +59,25 @@ public class FirstActivity extends AppCompatActivity {
                 final StringBuilder stringBuilder = new StringBuilder();
 
 
-//                final String[] mas = new String[] {};
-
-
-
                 try {
-                    Document doc = Jsoup.connect("https://aliexpress.ru/category/202000013/toys-hobbies.html").get();
+                    Document doc = Jsoup.connect("https://aliexpress.ru/category/202060570/desktops.html").get();
                     stringBuilder.append("!\n");
                     String title = doc.title();
                     Elements links = doc.select("div.product-snippet_ProductSnippet__description__1ettdy > a");
-//                    stringBuilder.append(title).append("\n");
                     for (Element link : links) {
                         if(link.text()!="" && link.text() !=" ") {
                             stringBuilder.append("\n").append("Text : ").append(link.text());
-                            Log.e("App",link.text().toString()+" ");
+//                            Log.e("App",link.text().toString()+" ");
                             list.add(""+link.select("div.product-snippet_ProductSnippet__name__1ettdy").text());
                             listHref.add("https://aliexpress.ru/"+link.attr("href"));
+                            listPrice.add(""+link.select("div.snow-price_SnowPrice__mainM__ugww0l").text());
+
                         }
                     }
 
 
                 } catch (IOException e) {
-                    Log.e("App","eroror");
-//                    stringBuilder.append("Error : ").append(e.getMessage()).append("\n");
+                    Log.e("App","ERROR");
                 }
 
                 runOnUiThread(new Runnable() {
@@ -78,22 +86,28 @@ public class FirstActivity extends AppCompatActivity {
                         if (pd.isShowing()){
                             pd.dismiss();
                         }
-//                        textView.setText(stringBuilder.toString());
-                        Log.e("App",stringBuilder.toString()+" ");
-//                        ArrayAdapter<String> adapter = new ArrayAdapter(this,
-//                                android.R.layout.simple_list_item_1, catNames);
-                        ArrayAdapter<String> adapter = new ArrayAdapter(FirstActivity.this,
-                                android.R.layout.simple_list_item_1, list);
+//                        Log.e("App",stringBuilder.toString()+" ");
+                        ArrayAdapter<String> adapter = new ArrayAdapter(FirstActivity.this, android.R.layout.simple_list_item_1, list);
 
                         listView.setAdapter(adapter);
-
-
+                        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                            @Override
+                            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                Intent intent= new Intent(Intent.ACTION_VIEW, Uri.parse(listHref.get(i)));
+                                startActivity(intent);
+                                return false;
+                            }
+                        });
                         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View itemClicked, int position, long id) {
-                                Toast.makeText(getApplicationContext(), listHref.get(position)+"", Toast.LENGTH_SHORT).show();
-                                Intent intent= new Intent(Intent.ACTION_VIEW, Uri.parse(listHref.get(position)));
-                                startActivity(intent);
+//
+
+                                Toast.makeText(getApplicationContext(), "Добавлено в сравнить", Toast.LENGTH_SHORT).show();
+                                SharedPreferences.Editor editor = mSettings.edit();
+                                editor.putString("aliN",list.get(position)+"");
+                                editor.putString("aliP",listPrice.get(position)+"");
+                                editor.apply();
                             }
                         });
 

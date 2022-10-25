@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button a,w;
+    Button a,w,f;
 
 
     @Override
@@ -31,6 +31,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent wild = new Intent(MainActivity.this, SecondActivity.class);
                 startActivity(wild);
+            }
+        });
+        f=findViewById(R.id.favorite_btn);
+        f.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent fav = new Intent(MainActivity.this, FavoriteActivity.class);
+                startActivity(fav);
             }
         });
 

@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -34,6 +35,10 @@ public class FirstActivity extends AppCompatActivity {
     private ListView listView;
     ProgressDialog pd;
     SharedPreferences mSettings;
+
+
+    ArrayList<Product> products = new ArrayList<Product>();
+    BoxAdapter boxAdapter;
 
 
     @Override
@@ -63,17 +68,26 @@ public class FirstActivity extends AppCompatActivity {
                     Document doc = Jsoup.connect("https://aliexpress.ru/category/202060570/desktops.html").get();
                     stringBuilder.append("!\n");
                     String title = doc.title();
+
+
+
                     Elements links = doc.select("div.product-snippet_ProductSnippet__description__1ettdy > a");
+                    Log.e("App",""+doc.select("script#__AER_DATA__").html());
+
+
                     for (Element link : links) {
                         if(link.text()!="" && link.text() !=" ") {
                             stringBuilder.append("\n").append("Text : ").append(link.text());
-//                            Log.e("App",link.text().toString()+" ");
+
                             list.add(""+link.select("div.product-snippet_ProductSnippet__name__1ettdy").text());
                             listHref.add("https://aliexpress.ru/"+link.attr("href"));
                             listPrice.add(""+link.select("div.snow-price_SnowPrice__mainM__ugww0l").text());
+                            products.add(new Product(""+link.select("div.product-snippet_ProductSnippet__name__1ettdy").text(), "Цена: "+link.select("div.snow-price_SnowPrice__mainM__18x8np").text(), R.drawable.ic_launcher_background,"https://aliexpress.ru/"+link.attr("href"),false));
 
                         }
                     }
+
+
 
 
                 } catch (IOException e) {
@@ -87,9 +101,9 @@ public class FirstActivity extends AppCompatActivity {
                             pd.dismiss();
                         }
 //                        Log.e("App",stringBuilder.toString()+" ");
-                        ArrayAdapter<String> adapter = new ArrayAdapter(FirstActivity.this, android.R.layout.simple_list_item_1, list);
-
-                        listView.setAdapter(adapter);
+//                        ArrayAdapter<String> adapter = new ArrayAdapter(FirstActivity.this, android.R.layout.simple_list_item_1, list);
+                        boxAdapter = new BoxAdapter(FirstActivity.this, products);
+                        listView.setAdapter(boxAdapter);
                         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                             @Override
                             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {

@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 
 public class SecondActivity extends AppCompatActivity {
@@ -36,11 +38,17 @@ public class SecondActivity extends AppCompatActivity {
     private ArrayList<String> list = new ArrayList<String>();
     private ArrayList<String> listHref = new ArrayList<String>();
     private ArrayList<String> listPrice = new ArrayList<String>();
+    private ArrayList<String> listImg = new ArrayList<String>();
     private ListView listView;
 
     SharedPreferences mSettings;
 
     ProgressDialog pd;
+
+
+
+    ArrayList<Product> products = new ArrayList<Product>();
+    BoxAdapter boxAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,7 +127,7 @@ public class SecondActivity extends AppCompatActivity {
             }
 
             try {
-
+//                tId.substring(0, Math.min(tId.length(), 4))
                 JSONObject jObj = new JSONObject(result);
                 JSONArray jsonArry = jObj.getJSONObject("data").getJSONArray("products");
                 for(int i=0;i<jsonArry.length();i++){
@@ -127,12 +135,17 @@ public class SecondActivity extends AppCompatActivity {
                     list.add(obj.getString("name"));
                     listHref.add("https://www.wildberries.ru/catalog/"+obj.getString("id").toString()+"/detail.aspx?targetUrl=GP");
                     listPrice.add((obj.getInt("salePriceU")/100)+" руб");
+                    listImg.add((obj.getString("id")));
+
+                    products.add(new Product(obj.getString("name"), "Цена: "+(obj.getInt("salePriceU")/100)+" руб", R.drawable.ic_launcher_background,"https://www.wildberries.ru/catalog/"+obj.getString("id").toString()+"/detail.aspx?targetUrl=GP",false));
+
 
                 }
-                ArrayAdapter<String> adapter = new ArrayAdapter(SecondActivity.this,
-                        android.R.layout.simple_list_item_1, list);
-
-                listView.setAdapter(adapter);
+//                ArrayAdapter<String> adapter = new ArrayAdapter(SecondActivity.this,
+//                        android.R.layout.simple_list_item_1, list);
+                boxAdapter = new BoxAdapter(SecondActivity.this, products);
+                listView.setAdapter(boxAdapter);
+//                listView.setAdapter(adapter);
                 listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {

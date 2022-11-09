@@ -62,7 +62,17 @@ public class BoxAdapter extends BaseAdapter {
 
         CheckBox cbBuy = (CheckBox) view.findViewById(R.id.cbBox);
         // присваиваем чекбоксу обработчик
-        cbBuy.setOnCheckedChangeListener(myCheckChangeList);
+//        cbBuy.setOnCheckedChangeListener(myCheckChangeList);
+        cbBuy.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b) {
+                    Order.items_name.add(p.name);
+                    Order.items_price.add(p.price);
+//                    Order.items_href.add(p.href);
+                }
+            }
+        });
         // пишем позицию
         cbBuy.setTag(position);
         // заполняем данными из товаров: в корзине или нет
@@ -93,7 +103,8 @@ public class BoxAdapter extends BaseAdapter {
         public void onCheckedChanged(CompoundButton buttonView,
                                      boolean isChecked) {
             // меняем данные товара (в корзине или нет)
-            getProduct((Integer) buttonView.getTag()).box = isChecked;
+//            getProduct((Integer) buttonView.getTag()).box = isChecked;
+
         }
     };
 

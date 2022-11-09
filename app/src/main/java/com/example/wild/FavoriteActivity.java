@@ -1,43 +1,33 @@
 package com.example.wild;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.MenuItem;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
 public class FavoriteActivity extends AppCompatActivity {
 
-    public static final String APP_KEY = "favorite";
 
-    SharedPreferences mSettings;
-    TextView name1,name2,price1,price2;
-
-
+    private MyRecyclerViewAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite);
 
-        name1 = findViewById(R.id.name1);
-        name2 = findViewById(R.id.name2);
-        price1 = findViewById(R.id.price1);
-        price2 = findViewById(R.id.price2);
-
-        mSettings = getSharedPreferences(APP_KEY, Context.MODE_PRIVATE);
-        if (mSettings.contains("aliN") && mSettings.contains("wildN")) {
-            name1.setText(mSettings.getString("aliN", ""));
-            price1.setText(mSettings.getString("aliP", ""));
-            name2.setText(mSettings.getString("wildN", ""));
-            price2.setText(mSettings.getString("wildP", ""));
-        }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        RecyclerView recyclerView = findViewById(R.id.prod_name);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        adapter = new MyRecyclerViewAdapter(FavoriteActivity.this, new ArrayList<>(Order.items_name), new ArrayList<>(Order.items_price));
+        recyclerView.setAdapter(adapter);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        onBackPressed();
+        return true;
     }
 }

@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -15,6 +16,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.DataNode;
@@ -35,10 +38,13 @@ public class FirstActivity extends AppCompatActivity {
     private ListView listView;
     ProgressDialog pd;
     SharedPreferences mSettings;
+    FloatingActionButton fab;
 
 
     ArrayList<Product> products = new ArrayList<Product>();
     BoxAdapter boxAdapter;
+
+    private String url;
 
 
     @Override
@@ -46,12 +52,27 @@ public class FirstActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Intent intent = getIntent();
+        url = intent.getStringExtra("url");
+
+
         listView = findViewById(R.id.listView);
         mSettings = getSharedPreferences(APP_KEY, Context.MODE_PRIVATE);
         pd = new ProgressDialog(FirstActivity.this);
         pd.setMessage("Please wait");
         pd.setCancelable(false);
         pd.show();
+
+        fab=findViewById(R.id.fab1);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent fav = new Intent(FirstActivity.this, FavoriteActivity.class);
+                startActivity(fav);
+            }
+        });
 
 
         getHtmlFromWeb();
@@ -65,7 +86,7 @@ public class FirstActivity extends AppCompatActivity {
 
 
                 try {
-                    Document doc = Jsoup.connect("https://aliexpress.ru/category/202060570/desktops.html").get();
+                    Document doc = Jsoup.connect(url).get();
                     stringBuilder.append("!\n");
                     String title = doc.title();
 
@@ -82,7 +103,7 @@ public class FirstActivity extends AppCompatActivity {
                             list.add(""+link.select("div.product-snippet_ProductSnippet__name__1ettdy").text());
                             listHref.add("https://aliexpress.ru/"+link.attr("href"));
                             listPrice.add(""+link.select("div.snow-price_SnowPrice__mainM__ugww0l").text());
-                            products.add(new Product(""+link.select("div.product-snippet_ProductSnippet__name__1ettdy").text(), "Цена: "+link.select("div.snow-price_SnowPrice__mainM__18x8np").text(), R.drawable.ic_launcher_background,"https://aliexpress.ru/"+link.attr("href"),false));
+                            products.add(new Product(""+link.select("div.product-snippet_ProductSnippet__name__1ettdy").text(), link.select("div.snow-price_SnowPrice__mainM__18x8np").text(), R.drawable.ic_launcher_background,"https://aliexpress.ru/"+link.attr("href"),false));
 
                         }
                     }
@@ -129,5 +150,10 @@ public class FirstActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        onBackPressed();
+        return true;
     }
 }

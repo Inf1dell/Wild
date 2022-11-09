@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -16,6 +17,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,20 +48,36 @@ public class SecondActivity extends AppCompatActivity {
 
     ProgressDialog pd;
 
-
+    FloatingActionButton fab;
 
     ArrayList<Product> products = new ArrayList<Product>();
     BoxAdapter boxAdapter;
+
+    private String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Intent intent = getIntent();
+        url = intent.getStringExtra("url");
+
         listView = findViewById(R.id.listS);
         mSettings = getSharedPreferences(APP_KEY, Context.MODE_PRIVATE);
 
-        new JsonTask().execute("https://catalog.wb.ru/catalog/electronic6/catalog?appType=1&couponsGeo=12,3,18,15,21,101&curr=rub&dest=-1029256,-51490,-184002,123586067&emp=0&lang=ru&locale=ru&pricemarginCoeff=1.0&reg=0&regions=80,68,64,83,4,38,33,70,82,69,86,75,30,40,48,1,22,66,31,71&spp=0&subject=2872;2875");
+        fab=findViewById(R.id.fab2);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent fav = new Intent(SecondActivity.this, FavoriteActivity.class);
+                startActivity(fav);
+            }
+        });
+
+        new JsonTask().execute(url);
     }
 
     private class JsonTask extends AsyncTask<String, String, String> {
@@ -137,7 +156,7 @@ public class SecondActivity extends AppCompatActivity {
                     listPrice.add((obj.getInt("salePriceU")/100)+" руб");
                     listImg.add((obj.getString("id")));
 
-                    products.add(new Product(obj.getString("name"), "Цена: "+(obj.getInt("salePriceU")/100)+" руб", R.drawable.ic_launcher_background,"https://www.wildberries.ru/catalog/"+obj.getString("id").toString()+"/detail.aspx?targetUrl=GP",false));
+                    products.add(new Product(obj.getString("name"), (obj.getInt("salePriceU")/100)+" руб", R.drawable.ic_launcher_background,"https://www.wildberries.ru/catalog/"+obj.getString("id").toString()+"/detail.aspx?targetUrl=GP",false));
 
 
                 }
@@ -176,5 +195,10 @@ public class SecondActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        onBackPressed();
+        return true;
     }
 }

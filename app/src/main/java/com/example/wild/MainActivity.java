@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,11 +18,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
+
         a=findViewById(R.id.button);
         a.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent ali = new Intent(MainActivity.this, FirstActivity.class);
+                Intent ali = new Intent(MainActivity.this, AliActivity.class);
                 startActivity(ali);
             }
         });
@@ -29,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         w.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent wild = new Intent(MainActivity.this, SecondActivity.class);
+                Intent wild = new Intent(MainActivity.this, WildActivity.class);
                 startActivity(wild);
             }
         });
